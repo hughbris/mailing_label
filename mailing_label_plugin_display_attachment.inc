@@ -28,37 +28,34 @@ class mailing_label_plugin_display_attachment extends views_plugin_display_attac
   function render() {
     $current_display = $this->view->current_display;
     $fields = $this->view->display[$current_display]->handler->handlers['field'];
-    $view=$this->view;
-      //catch the inline fields from the defualt view
-   $row_options = $this->view->display[$current_display]->handler->options['row_options'];
+    $view = $this->view;
+    //catch the inline fields from the defualt view
+    $row_options = $this->view->display[$current_display]->handler->options['row_options'];
    
-   //if the row options are left as defualts the variable may be null from above so check that and grab default value
-   if (empty($row_options)){
-     $row_options = $this->view->display['default']->handler->options['row_options'];
-   }
-   $allFields = array_keys($fields); //grab labels for all the fields - stuff them in a number indexed array
+    //if the row options are left as defaults the variable may be null from above so check that and grab default value
+    if (empty($row_options)){
+      $row_options = $this->view->display['default']->handler->options['row_options'];
+    }
+    $allFields = array_keys($fields); //grab labels for all the fields - stuff them in a number indexed array
 
-
-   $inlines= (empty($row_options) ?  Array() : $row_options['inline']) ;
+    $inlines= (empty($row_options) ?  Array() : $row_options['inline']) ;
 
     $i=0;
 
     foreach ($view->result as $result) {
-        foreach ($view->field as $id => $field) {
-          $x = check_plain(strip_tags(($view->field[$id]->theme($result))));
-          if ($fields[$id]->options['exclude']==0){ //only populate the result is the field is not excluded
-            $prepend = '';
-            if ($i > 0) {
-              $prepend = ( in_array($id,$inlines) ? ' ' : "\n" );
-            } 
-            $results[$i][$id] = $prepend . $allFields[$id].$x;
-          }
+      foreach ($view->field as $id => $field) {
+        $x = check_plain(strip_tags(($view->field[$id]->theme($result))));
+        if ($fields[$id]->options['exclude']==0){ //only populate the result is the field is not excluded
+          $prepend = '';
+          if ($i > 0) {
+            $prepend = ( in_array($id,$inlines) ? ' ' : "\n" );
+          } 
+          $results[$i][$id] = $prepend . $allFields[$id].$x;
         }
-    $i++;
+      }
+      $i++;
     }
     return mailing_label_pdf_form($results,$current_display);
   }
-
-
 }
 
