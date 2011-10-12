@@ -29,7 +29,6 @@ class mailing_label_plugin_display_attachment extends views_plugin_display_attac
     $current_display = $this->view->current_display;
     $fields = $this->view->display[$current_display]->handler->handlers['field'];
     $view=$this->view;
-    $i=0;
       //catch the inline fields from the defualt view
    $row_options = $this->view->display[$current_display]->handler->options['row_options'];
    
@@ -38,33 +37,21 @@ class mailing_label_plugin_display_attachment extends views_plugin_display_attac
      $row_options = $this->view->display['default']->handler->options['row_options'];
    }
    $allFields = array_keys($fields); //grab labels for all the fields - stuff them in a number indexed array
-   if (!empty($row_options)){
-       	$inlines=$row_options['inline'];
-   	  // find the fields not in the inlines array  these will have to be prepended with newline
-   	  //if there are no oinline fields - all but the first field will be prepended with newline
-   	  $prepends=array_flip(array_diff_key(array_flip($allFields),$inlines));
-   	  if ($prepends[0]==$allFields[0]){
-   	   $x = array_shift($prepends);//omit the first field since it's not necessary to prepend it
-   	  }
-   	  $allFields=array_flip($allFields);  //flip keys and values so that field names are the keys 
-   	  foreach($allFields as $id=>$new_id){
-   	    if ($new_id==0){
-   	       $new_id='';   //assign the character to prepend to this field
-   	    }
-   	    else{
-   	       $new_id=' '; //use a space between inlined fields
-   	    }
-   	    if (in_array($id,$prepends)){
-   	      $new_id="\n"; //this field should start on a new line so make the prepend a newline character
-   	    }
-   	    $allFields[$id]=$new_id;  //the values of this array are the prepend characters for the result set
-   	  }
-   }
+
+
+   $inlines= (empty($row_options) ?  Array() : $row_options['inline']) ;
+
+    $i=0;
+
     foreach ($view->result as $result) {
         foreach ($view->field as $id => $field) {
           $x = check_plain(strip_tags(($view->field[$id]->theme($result))));
           if ($fields[$id]->options['exclude']==0){ //only populate the result is the field is not excluded
-            $results[$i][$id] = $allFields[$id].$x;
+            $prepend = '';
+            if ($i > 0) {
+              $prepend = ( in_array($id,$inlines) ? ' ' : "\n" );
+            } 
+            $results[$i][$id] = $prepend . $allFields[$id].$x;
           }
         }
     $i++;
